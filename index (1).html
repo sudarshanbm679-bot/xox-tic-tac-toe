@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>XOX – Tic Tac Toe</title>
+<style>
+:root{--bg1:#1b0b4d;--bg2:#050a2e;--x:#22e6ff;--o:#ff3d9a;--gold:#ffd23f;--ink:#fff;--glass:rgba(255,255,255,.09);--line:rgba(255,255,255,.35);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;color:var(--ink);font-family:"Baloo 2","Trebuchet MS","Segoe UI",sans-serif;background:radial-gradient(circle at 20% 10%,#5b1fd1 0,transparent 45%),radial-gradient(circle at 85% 90%,#d6218a 0,transparent 40%),linear-gradient(160deg,var(--bg1),var(--bg2));background-attachment:fixed;display:flex;align-items:center;justify-content:center;overflow-x:hidden}
+.card{width:min(92vw,430px);background:var(--glass);border:1.5px solid var(--line);border-radius:26px;padding:24px;text-align:center;backdrop-filter:blur(8px);box-shadow:0 0 40px rgba(34,230,255,.25),0 0 70px rgba(255,61,154,.2)}
+.logo{font-size:4.2rem;font-weight:800;letter-spacing:.06em;margin:0;line-height:1}
+.logo .x{color:var(--x);text-shadow:0 0 14px var(--x),0 0 34px var(--x)}
+.logo .o{color:var(--o);text-shadow:0 0 14px var(--o),0 0 34px var(--o)}
+.logo span{display:inline-block;animation:pop .7s cubic-bezier(.3,1.6,.5,1) both}
+.logo span:nth-child(2){animation-delay:.2s}.logo span:nth-child(3){animation-delay:.4s}
+@keyframes pop{from{transform:scale(0) rotate(-200deg);opacity:0}to{transform:none;opacity:1}}
+h2{margin:.2em 0 .5em;font-size:1.6rem}
+p.sub{margin:.4em 0 1em;opacity:.85;font-size:1.1rem}
+button{font:inherit;font-weight:700;font-size:1.2rem;border:0;border-radius:16px;padding:.65em 1em;cursor:pointer;width:100%;margin:.35em 0;color:#1a0b3d;background:linear-gradient(90deg,var(--x),#7cf2a4);box-shadow:0 5px 0 rgba(0,0,0,.35);transition:transform .08s}
+button:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+button.pink{background:linear-gradient(90deg,var(--o),var(--gold))}
+button.ghost{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+button:focus-visible,input:focus-visible,.cell:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input{font:inherit;font-size:1.2rem;width:100%;padding:.6em .8em;border-radius:14px;border:2px solid var(--line);background:rgba(0,0,0,.3);color:var(--ink);margin:.25em 0 .8em;text-align:center}
+label{display:block;text-align:left;font-weight:700;margin-top:.3em}
+label.p1{color:var(--x)}label.p2{color:var(--o)}
+.hidden{display:none!important}
+.row{display:flex;gap:8px}.row button{flex:1}
+.level{display:flex;gap:8px}.level button{font-size:1rem;padding:.4em;margin:.2em 0}
+.level button[aria-pressed="false"]{background:transparent;color:var(--ink);border:2px solid var(--line);box-shadow:none}
+.score{display:flex;justify-content:space-between;gap:6px;margin-bottom:.5em}
+.score div{flex:1;border-radius:14px;padding:.3em;background:rgba(0,0,0,.25);font-size:.95rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.score b{display:block;font-size:1.7rem;line-height:1.1}
+#t1{color:var(--x)}#t2{color:var(--o)}
+.score .on{outline:2px solid var(--gold)}
+.status{font-size:1.4rem;font-weight:800;min-height:1.6em;margin:.2em 0 .5em}
+.board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;aspect-ratio:1;margin:0 auto 1em;width:100%}
+.cell{margin:0;padding:8%;width:100%;height:100%;border-radius:18px;background:rgba(255,255,255,.1);border:2px solid var(--line);box-shadow:none;display:flex;align-items:center;justify-content:center}
+.cell:not(:disabled):hover{background:rgba(255,255,255,.2)}
+.cell.win{background:rgba(255,210,63,.35);border-color:var(--gold);animation:glow .6s ease-in-out infinite alternate}
+@keyframes glow{to{box-shadow:0 0 22px var(--gold)}}
+.cell svg{width:100%;height:100%;overflow:visible}
+.mk{fill:none;stroke-width:13;stroke-linecap:round;stroke-dasharray:120;stroke-dashoffset:120;animation:draw .35s ease-out forwards}
+.mk.x{stroke:var(--x);filter:drop-shadow(0 0 6px var(--x))}
+.mk.o{stroke:var(--o);filter:drop-shadow(0 0 6px var(--o))}
+.mk.b{animation-delay:.18s}
+@keyframes draw{to{stroke-dashoffset:0}}
+#banner{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:5}
+#banner div{font-size:clamp(3rem,16vw,6rem);font-weight:800;color:var(--gold);text-shadow:0 0 20px var(--o),0 4px 0 #7a2200;animation:big 1.6s ease-out forwards;text-align:center}
+@keyframes big{0%{transform:scale(0) rotate(-12deg);opacity:0}25%{transform:scale(1.15) rotate(4deg);opacity:1}80%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:0}}
+.conf{position:fixed;top:-20px;width:10px;height:16px;z-index:4;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+#mute{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;width:auto;padding:.3em .6em;font-size:1.3rem;margin:0;background:rgba(0,0,0,.35);color:#fff;box-shadow:none;z-index:6}
+@media (prefers-reduced-motion:reduce){.logo span,.cell.win{animation:none}.mk{animation-duration:.01s}}
+</style>
+</head>
+<body>
+<button id="mute" aria-label="Sound on or off">🔊</button>
+<div id="banner"></div>
+<main class="card">
+ <section id="splash">
+  <h1 class="logo"><span class="x">X</span><span class="o">O</span><span class="x">X</span></h1>
+  <p class="sub">Tic Tac Toe</p>
+  <button id="go">Play</button>
+ </section>
+ <section id="menu" class="hidden">
+  <h2>How do you want to play?</h2>
+  <button id="pc">Play with computer</button>
+  <button id="pp" class="pink">Player 1 vs Player 2</button>
+  <p class="sub" style="margin-bottom:.2em">Computer level</p>
+  <div class="level" id="lv"><button data-l="easy" aria-pressed="false">Easy</button><button data-l="medium" aria-pressed="false">Medium</button><button data-l="hard" aria-pressed="true">Hard</button></div>
+ </section>
+ <section id="names" class="hidden">
+  <h2>Enter player names</h2>
+  <label class="p1" for="in1" id="l1">Player 1 (X)</label>
+  <input id="in1" maxlength="12" placeholder="Player 1" autocomplete="off">
+  <div id="p2wrap"><label class="p2" for="in2">Player 2 (O)</label>
+  <input id="in2" maxlength="12" placeholder="Player 2" autocomplete="off"></div>
+  <button id="cont">Continue</button>
+  <button id="back" class="ghost">Back</button>
+ </section>
+ <section id="game" class="hidden">
+  <div class="score"><div id="t1"><span id="n1"></span><b id="s1">0</b></div><div>Draws<b id="sd">0</b></div><div id="t2"><span id="n2"></span><b id="s2">0</b></div></div>
+  <div class="status" id="status" aria-live="polite"></div>
+  <div class="board" id="board" role="group" aria-label="Board"></div>
+  <div class="row"><button id="again" class="pink">Play again</button><button id="home" class="ghost">Menu</button></div>
+ </section>
+</main>
+<script>
+(function(){
+var L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+var b,turn,over,mode='pc',level='hard',sc,busy=false,snd=true,N={X:'',O:''},ac;
+var $=function(i){return document.getElementById(i)};
+function show(id){['splash','menu','names','game'].forEach(function(s){$(s).classList.toggle('hidden',s!==id)})}
+function tone(f,d,t,del){if(!snd)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain(),s=ac.currentTime+(del||0);
+ o.type=t||'sine';o.frequency.value=f;g.gain.setValueAtTime(.15,s);g.gain.exponentialRampToValueAtTime(.001,s+d);o.connect(g);g.connect(ac.destination);o.start(s);o.stop(s+d)}catch(e){}}
+function fanfare(){[523,659,784,1047].forEach(function(f,i){tone(f,.25,'triangle',i*.12)})}
+$('mute').onclick=function(){snd=!snd;this.textContent=snd?'🔊':'🔇'};
+var boardEl=$('board');
+for(var i=0;i<9;i++){var c=document.createElement('button');c.className='cell';c.dataset.i=i;c.setAttribute('aria-label','Cell '+(i+1));boardEl.appendChild(c)}
+var cells=boardEl.children;
+var XS='<svg viewBox="0 0 100 100"><path class="mk x" d="M18 18L82 82"/><path class="mk x b" d="M82 18L18 82"/></svg>';
+var OS='<svg viewBox="0 0 100 100"><circle class="mk o" cx="50" cy="50" r="33" style="stroke-dasharray:210;stroke-dashoffset:210"/></svg>';
+function winner(s){for(var k=0;k<8;k++){var l=L[k];if(s[l[0]]&&s[l[0]]===s[l[1]]&&s[l[0]]===s[l[2]])return{p:s[l[0]],l:l}}return null}
+function render(){for(var i=0;i<9;i++){if(!b[i]){cells[i].innerHTML='';cells[i].disabled=false}cells[i].className='cell'}}
+function mark(i){cells[i].innerHTML=b[i]==='X'?XS:OS;cells[i].disabled=true;
+ var o=cells[i].querySelector('circle');if(o){o.style.animation='draw .45s ease-out forwards'}}
+function turnUI(){$('t1').classList.toggle('on',turn==='X'&&!over);$('t2').classList.toggle('on',turn==='O'&&!over)}
+function status(t){$('status').textContent=t}
+function start(){b=Array(9).fill('');turn='X';over=false;busy=false;render();status(N.X+"'s turn");turnUI()}
+function confetti(){var cols=['#22e6ff','#ff3d9a','#ffd23f','#7cf2a4','#fff'];
+ for(var i=0;i<60;i++){var s=document.createElement('span');s.className='conf';s.style.left=Math.random()*100+'vw';s.style.background=cols[i%5];
+  s.style.animationDuration=(1.8+Math.random()*1.8)+'s';s.style.animationDelay=Math.random()*.5+'s';document.body.appendChild(s);
+  setTimeout(function(e){e.remove()},4500,s)}}
+function banner(t){var d=$('banner');d.innerHTML='<div>'+t+'</div>';setTimeout(function(){d.innerHTML=''},1700)}
+function finish(){var w=winner(b);over=true;turnUI();
+ if(w){w.l.forEach(function(i){cells[i].classList.add('win')});sc[w.p]++;status(N[w.p]+' wins! 🏆');
+  if(mode==='pc'&&w.p==='O'){banner('Computer wins!');tone(200,.5,'sawtooth')}else{banner('SUPER!');confetti();fanfare()}}
+ else{sc.D++;status("It's a draw!");banner('Draw!');tone(330,.3);tone(262,.4,'sine',.2)}
+ $('s1').textContent=sc.X;$('s2').textContent=sc.O;$('sd').textContent=sc.D}
+function place(i){b[i]=turn;mark(i);tone(turn==='X'?660:440,.15,'square');
+ if(winner(b)||b.every(Boolean)){finish();return}
+ turn=turn==='X'?'O':'X';status(N[turn]+"'s turn");turnUI()}
+function mm(s,t){var w=winner(s);if(w)return w.p==='O'?10:-10;if(s.every(Boolean))return 0;
+ var best=t==='O'?-99:99;
+ for(var i=0;i<9;i++)if(!s[i]){s[i]=t;var v=mm(s,t==='O'?'X':'O');s[i]='';if(t==='O'?v>best:v<best)best=v}
+ return best}
+function ai(){var f=[];for(var i=0;i<9;i++)if(!b[i])f.push(i);
+ var rnd={easy:.8,medium:.35,hard:0}[level];if(Math.random()<rnd)return f[Math.floor(Math.random()*f.length)];
+ var best=-99,m=[];f.forEach(function(i){b[i]='O';var v=mm(b,'X');b[i]='';if(v>best){best=v;m=[i]}else if(v===best)m.push(i)});
+ return m[Math.floor(Math.random()*m.length)]}
+boardEl.addEventListener('click',function(e){var t=e.target.closest('.cell');if(!t||over||busy)return;
+ var i=+t.dataset.i;if(b[i]||(mode==='pc'&&turn!=='X'))return;place(i);
+ if(mode==='pc'&&!over){busy=true;setTimeout(function(){busy=false;if(!over)place(ai())},450)}});
+$('go').onclick=function(){fanfare();show('menu')};
+function pick(m){mode=m;$('p2wrap').classList.toggle('hidden',m==='pc');$('l1').textContent=m==='pc'?'Your name (X)':'Player 1 (X)';show('names');$('in1').focus()}
+$('pc').onclick=function(){tone(600,.1);pick('pc')};
+$('pp').onclick=function(){tone(600,.1);pick('pp')};
+$('back').onclick=function(){show('menu')};
+$('cont').onclick=function(){
+ N.X=$('in1').value.trim()||(mode==='pc'?'You':'Player 1');
+ N.O=mode==='pc'?'Computer':($('in2').value.trim()||'Player 2');
+ $('n1').textContent=N.X+' (X)';$('n2').textContent=N.O+' (O)';
+ sc={X:0,O:0,D:0};['s1','s2','sd'].forEach(function(k){$(k).textContent=0});
+ fanfare();show('game');start()};
+$('again').onclick=start;
+$('home').onclick=function(){show('menu')};
+$('lv').addEventListener('click',function(e){var t=e.target.closest('button');if(!t)return;level=t.dataset.l;
+ Array.prototype.forEach.call($('lv').children,function(x){x.setAttribute('aria-pressed',x===t)})});
+['in1','in2'].forEach(function(id){$(id).addEventListener('keydown',function(e){if(e.key==='Enter')$('cont').click()})});
+})();
+</script>
+</body>
+</html>
